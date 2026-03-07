@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Favorites - Public Transport Route Finder</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <span class="logo-icon">🚌</span>
+                <span>TransitRoute</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html">Search</a></li>
+                <li><a href="favorites.html" class="active">Favorites</a></li>
+                <li id="userGreeting" class="user-greeting"></li>
+                <li><button id="logoutBtn" class="logout-btn">Logout</button></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Page Header -->
+        <section class="page-header">
+            <h1>My Favorite Routes</h1>
+            <p>Quick access to your saved routes</p>
+        </section>
+
+        <!-- Favorites Content -->
+        <section class="favorites-section">
+            <!-- Empty State -->
+            <div id="emptyState" class="empty-state">
+                <div class="empty-icon">♡</div>
+                <h2>No Favorite Routes Yet</h2>
+                <p>Save your favorite routes for quick access</p>
+                <a href="index.html" class="btn btn-primary">Search Routes</a>
+            </div>
+
+            <!-- Favorites Grid -->
+            <div id="favoritesContainer" class="favorites-grid" style="display: none;">
+                <!-- Favorites will be inserted here -->
+            </div>
+        </section>
+
+        <!-- Loading Indicator -->
+        <div id="loadingIndicator" class="loading-spinner" style="display: none;">
+            <div class="spinner"></div>
+            <p>Loading favorites...</p>
+        </div>
+
+        <!-- Error Message -->
+        <div id="errorMessage" class="error-message" style="display: none;"></div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2026 Public Transport Route Finder. All rights reserved.</p>
+    </footer>
+
+    <script src="config.js"></script>
+    <script src="favorites.js"></script>
+</body>
+</html>

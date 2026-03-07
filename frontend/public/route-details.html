@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Route Details - Public Transport Route Finder</title>
+    <link rel="stylesheet" href="styles.css">
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256‑RLtsUu1pXkkP6bQXQkP8vAtO/Kc1aMcjF3ZfXfWQwpU="
+      crossorigin=""
+    />
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256‑paz5sa4U+HahLx0ayK8i9YlR4oKxwAD8Lt1pD6awjvM="
+      crossorigin=""
+    ></script>
+        <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <span class="logo-icon">🚌</span>
+                <span>TransitRoute</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html">Search</a></li>
+                <li><a href="favorites.html">Favorites</a></li>
+                <li id="userGreeting" class="user-greeting"></li>
+                <li><button id="logoutBtn" class="logout-btn">Logout</button></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Back Button -->
+        <button id="backBtn" class="btn btn-secondary" style="margin-top: 20px;">← Back to Results</button>
+
+        <div class="details-container">
+            <!-- Route Information -->
+            <section class="route-info-section">
+                <div class="route-header">
+                    <div class="route-title">
+                        <h2 id="routeTitle"></h2>
+                        <span id="transportBadge" class="badge"></span>
+                    </div>
+                    <button id="favoriteBtn" class="btn btn-secondary">♡ Add to Favorites</button>
+                </div>
+
+                <!-- Basic Info -->
+                <div class="route-summary">
+                    <div class="summary-item">
+                        <label>Transport Number</label>
+                        <p id="transportNumber"></p>
+                    </div>
+                    <div class="summary-item">
+                        <label>Departure</label>
+                        <p id="departureTime"></p>
+                    </div>
+                    <div class="summary-item">
+                        <label>Arrival</label>
+                        <p id="arrivalTime"></p>
+                    </div>
+                    <div class="summary-item">
+                        <label>Fare</label>
+                        <p id="fare" class="fare-highlight"></p>
+                    </div>
+                    <div class="summary-item">
+                        <label>Available Seats</label>
+                        <p id="availableSeats"></p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Map Section -->
+            <section class="map-section">
+                <h3>Route Visualization</h3>
+                <div id="routeMap" class="route-map"></div>
+            </section>
+
+            <!-- Stops Section -->
+            <section class="stops-section">
+                <h3>Stops Along the Route</h3>
+                <div id="stopsList" class="stops-list">
+                    <!-- Stops will be inserted here -->
+                </div>
+            </section>
+
+            <!-- Route Details -->
+            <section class="details-section">
+                <h3>Route Details</h3>
+                <div id="detailsContent" class="details-content">
+                    <!-- Details will be inserted here -->
+                </div>
+            </section>
+
+            <!-- Booking Section -->
+            <section class="booking-section">
+                <div class="booking-card">
+                    <h3>Ready to Book?</h3>
+                    <p id="bookingMessage">Click the button below to proceed with booking</p>
+                    <button id="bookBtn" class="btn btn-primary btn-large">Book Now</button>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2026 Public Transport Route Finder. All rights reserved.</p>
+    </footer>
+
+    <script src="config.js"></script>
+    <script src="route-details.js"></script>
+</body>
+</html>

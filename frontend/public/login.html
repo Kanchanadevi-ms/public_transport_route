@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Public Transport Route Finder</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="auth-body">
+    <div class="auth-container">
+        <!-- Login Card -->        
+    
+        <div class="auth-card login-card" id="loginCard">
+            <div class="auth-logo">
+                <span class="logo-icon">🚌</span>
+                <span>TransitRoute</span>
+            </div>
+
+            <h2>Welcome Back</h2>
+            <p class="auth-subtitle">Sign in to your account to continue</p>
+
+            <form id="loginForm" class="auth-form">
+                <div class="form-group">
+                    <label for="loginEmail">Email Address</label>
+                    <input 
+                        type="email" 
+                        id="loginEmail" 
+                        class="form-input" 
+                        placeholder="your@email.com"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input 
+                        type="password" 
+                        id="loginPassword" 
+                        class="form-input" 
+                        placeholder="Enter your password"
+                        required
+                    >
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-full">Sign In</button>
+            </form>
+
+            <p class="auth-toggle">
+                Don't have an account? 
+                <a href="#" id="toggleRegister">Create one</a>
+            </p>
+
+            <div id="loginMessage" class="auth-message"></div>
+        </div>
+
+        <!-- Register Card -->
+        <div class="auth-card register-card" id="registerCard" style="display: none;">
+            <div class="auth-logo">
+                <span class="logo-icon">🚌</span>
+                <span>TransitRoute</span>
+            </div>
+
+            <h2>Create Account</h2>
+            <p class="auth-subtitle">Join us to start planning your routes</p>
+
+            <form id="registerForm" class="auth-form">
+                <div class="form-group">
+                    <label for="registerName">Full Name</label>
+                    <input 
+                        type="text" 
+                        id="registerName" 
+                        class="form-input" 
+                        placeholder="John Doe"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="registerEmail">Email Address</label>
+                    <input 
+                        type="email" 
+                        id="registerEmail" 
+                        class="form-input" 
+                        placeholder="your@email.com"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="registerPassword">Password</label>
+                    <input 
+                        type="password" 
+                        id="registerPassword" 
+                        class="form-input" 
+                        placeholder="Min 6 characters"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="registerConfirmPassword">Confirm Password</label>
+                    <input 
+                        type="password" 
+                        id="registerConfirmPassword" 
+                        class="form-input" 
+                        placeholder="Confirm password"
+                        required
+                    >
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-full">Create Account</button>
+            </form>
+
+            <p class="auth-toggle">
+                Already have an account? 
+                <a href="#" id="toggleLogin">Sign in</a>
+            </p>
+
+            <div id="registerMessage" class="auth-message"></div>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="auth.js"></script>
+</body>
+</html>

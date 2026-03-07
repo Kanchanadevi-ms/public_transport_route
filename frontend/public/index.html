@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Public Transport Route Finder</title>
+    <link rel="stylesheet" href="styles.css">
+
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256‑RLtsUu1pXkkP6bQXQkP8vAtO/Kc1aMcjF3ZfXfWQwpU="
+      crossorigin=""
+    />
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256‑paz5sa4U+HahLx0ayK8i9YlR4oKxwAD8Lt1pD6awjvM="
+      crossorigin=""
+    ></script>
+       
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <span class="logo-icon">🚌</span>
+                <span>TransitRoute</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="active">Search</a></li>
+                <li><a href="favorites.html">Favorites</a></li>
+                <li id="userGreeting" class="user-greeting"></li>
+                <li><button id="logoutBtn" class="logout-btn">Logout</button></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Hero Section -->
+        <section class="hero">
+            <h1>Find Your Perfect Transport Route</h1>
+            <p>Quick, reliable, and affordable public transport solutions</p>
+        </section>
+
+        <!-- Search Section -->
+        <section class="search-section">
+            <div class="search-card">
+                <h2>Plan Your Journey</h2>
+                
+                <div class="search-form">
+                    <!-- Source Input -->
+                    <div class="form-group">
+                        <label for="source">From (Source)</label>
+                        <div class="autocomplete-wrapper">
+                            <input 
+                                type="text" 
+                                id="source" 
+                                class="search-input" 
+                                placeholder="Enter source location"
+                                autocomplete="off"
+                            >
+                            <ul id="sourceSuggestions" class="suggestions-list"></ul>
+                        </div>
+                    </div>
+
+                    <!-- Destination Input -->
+                    <div class="form-group">
+                        <label for="destination">To (Destination)</label>
+                        <div class="autocomplete-wrapper">
+                            <input 
+                                type="text" 
+                                id="destination" 
+                                class="search-input" 
+                                placeholder="Enter destination location"
+                                autocomplete="off"
+                            >
+                            <ul id="destSuggestions" class="suggestions-list"></ul>
+                        </div>
+                    </div>
+
+                    <!-- Transport Type Filter -->
+                    <div class="form-group">
+                        <label for="transportType">Transport Type</label>
+                        <select id="transportType" class="form-select">
+                            <option value="both">Both (Bus & Train)</option>
+                            <option value="bus">Bus Only</option>
+                            <option value="train">Train Only</option>
+                        </select>
+                    </div>
+
+                    <!-- Date Picker -->
+                    <div class="form-group">
+                        <label for="journeyDate">Date</label>
+                        <input type="date" id="journeyDate" class="form-input">
+                    </div>
+
+                    <!-- Search Button -->
+                    <button id="searchBtn" class="btn btn-primary">Search Routes</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Results Section -->
+        <section class="results-section" id="resultsSection" style="display: none;">
+            <h2>Available Routes</h2>
+            
+            <!-- Sort Options -->
+            <div class="sort-options">
+                <button class="sort-btn active" data-sort="fare">Sort by Price</button>
+                <button class="sort-btn" data-sort="duration">Sort by Duration</button>
+                <button class="sort-btn" data-sort="departure">Sort by Departure</button>
+            </div>
+
+            <!-- Results Container -->
+            <div id="resultsContainer" class="results-container">
+                <!-- Results will be inserted here -->
+            </div>
+        </section>
+
+        <!-- Loading Indicator -->
+        <div id="loadingIndicator" class="loading-spinner" style="display: none;">
+            <div class="spinner"></div>
+            <p>Finding routes...</p>
+        </div>
+
+        <!-- Error Message -->
+        <div id="errorMessage" class="error-message" style="display: none;"></div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2026 Public Transport Route Finder. All rights reserved.</p>
+    </footer>
+
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
