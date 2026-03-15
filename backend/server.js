@@ -36,6 +36,19 @@ app.use((req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+});
+
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`Port ${PORT} is already in use.`);
+    console.error(`If backend is already running, use it directly at http://localhost:${PORT}`);
+    console.error(`Or stop the process with: netstat -ano | findstr :${PORT}`);
+    process.exit(1);
+    return;
+  }
+
+  console.error('Server startup error:', err.message);
+  process.exit(1);
 });
