@@ -4,11 +4,17 @@ let currentSort = 'fare';
 
 // List of available cities
 const AVAILABLE_CITIES = [
-  'Coimbatore', 'Erode', 'Salem', 'Bangalore', 'Chennai',
-  'Tiruchirappalli', 'Kochi', 'Thiruvananthapuram', 'Hyderabad', 'Pune',
-  'Mumbai', 'Delhi', 'Jaipur', 'Lucknow', 'Kolkata',
-  'Patna', 'Guwahati', 'Chandigarh', 'Ahmedabad', 'Surat',
-  'Vadodara', 'Nagpur', 'Indore', 'Bhopal', 'Raipur'
+    'Chennai', 'Coimbatore', 'Madurai', 'Tiruchirappalli', 'Salem',
+    'Erode', 'Tirunelveli', 'Vellore', 'Thoothukudi', 'Dindigul',
+    'Thanjavur', 'Kumbakonam', 'Cuddalore', 'Nagercoil', 'Kanyakumari',
+    'Tirupur', 'Karur', 'Namakkal', 'Pudukkottai', 'Sivaganga',
+    'Virudhunagar', 'Ramanathapuram', 'Tenkasi', 'Tiruvannamalai', 'Villupuram',
+    'Kallakurichi', 'Ranipet', 'Chengalpattu', 'Kanchipuram', 'Thiruvallur',
+    'Ariyalur', 'Perambalur', 'Nagapattinam', 'Mayiladuthurai', 'Karaikudi',
+    'Sivakasi', 'Kovilpatti', 'Sankarankovil', 'Srirangam', 'Manapparai',
+    'Pollachi', 'Palani', 'Oddanchatram', 'Batlagundu', 'Paramakudi',
+    'Mudukulathur', 'Tiruvottiyur', 'Ambattur', 'Avadi', 'Bangalore',
+    'Kochi', 'Thiruvananthapuram', 'Hyderabad', 'Mysuru'
 ];
 
 document.addEventListener('DOMContentLoaded', () => {
