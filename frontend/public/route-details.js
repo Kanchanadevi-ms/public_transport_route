@@ -77,46 +77,191 @@ function getCityCoordinates(cityName) {
     return { stopName: matchedCity, lat, lng };
 }
 
-function getMapPoints() {
-    if (!currentTransport) return [];
+function parseTimeToMinutes(timeValue) {
+    if (timeValue === null || timeValue === undefined || timeValue === '') return null;
 
-    if (Array.isArray(currentTransport.schedule) && currentTransport.schedule.length > 0) {
-        const schedulePoints = currentTransport.schedule
-            .map(stop => ({
-                stopName: stop.stopName,
-                arrivalTime: stop.arrivalTime,
-                departureTime: stop.departureTime,
-                lat: parseFloat(stop.lat),
-                lng: parseFloat(stop.lng)
-            }))
-            .filter(stop => !Number.isNaN(stop.lat) && !Number.isNaN(stop.lng));
-
-        if (schedulePoints.length >= 2) {
-            return schedulePoints;
-        }
+    if (typeof timeValue === 'number' && Number.isFinite(timeValue)) {
+        return ((timeValue % 1440) + 1440) % 1440;
     }
+
+    const input = String(timeValue).trim();
+    if (!input) return null;
+
+    const twelveHourMatch = input.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+    if (twelveHourMatch) {
+        let hours = parseInt(twelveHourMatch[1], 10);
+        const minutes = parseInt(twelveHourMatch[2], 10);
+        const meridiem = twelveHourMatch[3].toUpperCase();
+
+        if (hours < 1 || hours > 12 || minutes < 0 || minutes > 59) return null;
+        if (hours === 12) hours = 0;
+        if (meridiem === 'PM') hours += 12;
+
+        return (hours * 60) + minutes;
+    }
+
+    const twentyFourHourMatch = input.match(/^(\d{1,2}):(\d{2})$/);
+    if (twentyFourHourMatch) {
+        const hours = parseInt(twentyFourHourMatch[1], 10);
+        const minutes = parseInt(twentyFourHourMatch[2], 10);
+        if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) return null;
+        return (hours * 60) + minutes;
+    }
+
+    return null;
+}
+
+function minutesTo12Hour(totalMinutes) {
+    const normalizedMinutes = ((Math.round(totalMinutes) % 1440) + 1440) % 1440;
+    const hours24 = Math.floor(normalizedMinutes / 60);
+    const minutes = normalizedMinutes % 60;
+    const meridiem = hours24 >= 12 ? 'PM' : 'AM';
+    let hours12 = hours24 % 12;
+    if (hours12 === 0) hours12 = 12;
+    return `${hours12}:${String(minutes).padStart(2, '0')} ${meridiem}`;
+}
+
+function to12HourFormat(timeValue) {
+    const minutes = parseTimeToMinutes(timeValue);
+    if (minutes === null) return timeValue || '-';
+    return minutesTo12Hour(minutes);
+}
+
+function findNearestCity(targetLat, targetLng, excludedCities) {
+    let nearest = null;
+    let minDistance = Infinity;
+
+    Object.entries(CITY_COORDINATES).forEach(([city, coords]) => {
+        if (excludedCities.has(city.toLowerCase())) return;
+
+        const [lat, lng] = coords;
+        const distance = Math.pow(lat - targetLat, 2) + Math.pow(lng - targetLng, 2);
+
+        if (distance < minDistance) {
+            minDistance = distance;
+            nearest = { stopName: city, lat, lng };
+        }
+    });
+
+    return nearest;
+}
+
+function calculateDurationMinutes(departureMinutes) {
+    const durationFromField = Number(currentTransport.duration);
+    if (Number.isFinite(durationFromField) && durationFromField > 0) {
+        return durationFromField;
+    }
+
+    const arrivalMinutes = parseTimeToMinutes(currentTransport.arrivalTime);
+    if (departureMinutes !== null && arrivalMinutes !== null) {
+        let difference = arrivalMinutes - departureMinutes;
+        if (difference <= 0) difference += 1440;
+        return difference;
+    }
+
+    return 240;
+}
+
+function getFallbackRouteStops() {
+    if (!currentTransport) return [];
 
     const sourceCoords = getCityCoordinates(currentTransport.source);
     const destinationCoords = getCityCoordinates(currentTransport.destination);
 
     if (!sourceCoords || !destinationCoords) return [];
 
+    const departureMinutes = parseTimeToMinutes(currentTransport.departureTime) ?? 8 * 60;
+    const durationMinutes = calculateDurationMinutes(departureMinutes);
+    const segmentMinutes = durationMinutes / 4;
+
+    const excludedCities = new Set([
+        (currentTransport.source || '').trim().toLowerCase(),
+        (currentTransport.destination || '').trim().toLowerCase()
+    ]);
+
+    const intermediateStops = [0.25, 0.5, 0.75].map((fraction, index) => {
+        const targetLat = sourceCoords.lat + ((destinationCoords.lat - sourceCoords.lat) * fraction);
+        const targetLng = sourceCoords.lng + ((destinationCoords.lng - sourceCoords.lng) * fraction);
+
+        const nearestCity = findNearestCity(targetLat, targetLng, excludedCities);
+        if (nearestCity) {
+            excludedCities.add(nearestCity.stopName.toLowerCase());
+        }
+
+        const stopLat = nearestCity ? nearestCity.lat : targetLat;
+        const stopLng = nearestCity ? nearestCity.lng : targetLng;
+        const stopName = nearestCity ? nearestCity.stopName : `Intermediate Stop ${index + 1}`;
+
+        const arrivalMinutes = departureMinutes + Math.round(segmentMinutes * (index + 1));
+        const departureAtStopMinutes = arrivalMinutes + 5;
+
+        return {
+            stopName,
+            lat: stopLat,
+            lng: stopLng,
+            arrivalTime: minutesTo12Hour(arrivalMinutes),
+            departureTime: minutesTo12Hour(departureAtStopMinutes)
+        };
+    });
+
     return [
         {
             stopName: currentTransport.source,
-            arrivalTime: currentTransport.departureTime,
-            departureTime: currentTransport.departureTime,
             lat: sourceCoords.lat,
-            lng: sourceCoords.lng
+            lng: sourceCoords.lng,
+            arrivalTime: '',
+            departureTime: minutesTo12Hour(departureMinutes)
         },
+        ...intermediateStops,
         {
             stopName: currentTransport.destination,
-            arrivalTime: currentTransport.arrivalTime,
-            departureTime: currentTransport.arrivalTime,
             lat: destinationCoords.lat,
-            lng: destinationCoords.lng
+            lng: destinationCoords.lng,
+            arrivalTime: minutesTo12Hour(departureMinutes + durationMinutes),
+            departureTime: ''
         }
     ];
+}
+
+function getRouteStops() {
+    if (!currentTransport) return [];
+
+    if (Array.isArray(currentTransport.schedule) && currentTransport.schedule.length > 0) {
+        return currentTransport.schedule.map((stop, index) => ({
+            stopName: stop.stopName || `Stop ${index + 1}`,
+            arrivalTime: stop.arrivalTime || '',
+            departureTime: stop.departureTime || '',
+            lat: parseFloat(stop.lat),
+            lng: parseFloat(stop.lng)
+        }));
+    }
+
+    return getFallbackRouteStops();
+}
+
+function getMapPoints() {
+    const routeStops = getRouteStops();
+    const routeMapPoints = routeStops
+        .map(stop => ({
+            ...stop,
+            lat: parseFloat(stop.lat),
+            lng: parseFloat(stop.lng)
+        }))
+        .filter(stop => !Number.isNaN(stop.lat) && !Number.isNaN(stop.lng));
+
+    if (routeMapPoints.length >= 2) {
+        return routeMapPoints;
+    }
+
+    const fallbackPoints = getFallbackRouteStops()
+        .map(stop => ({
+            ...stop,
+            lat: parseFloat(stop.lat),
+            lng: parseFloat(stop.lng)
+        }))
+        .filter(stop => !Number.isNaN(stop.lat) && !Number.isNaN(stop.lng));
+
+    return fallbackPoints.length >= 2 ? fallbackPoints : [];
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -203,14 +348,13 @@ function displayRouteInfo() {
         transportBadge.className = `badge ${badgeClass}`;
     }
     if (transportNumber) transportNumber.textContent = currentTransport.number;
-    if (departureTime) departureTime.textContent = currentTransport.departureTime;
-    if (arrivalTime) arrivalTime.textContent = currentTransport.arrivalTime;
+    if (departureTime) departureTime.textContent = to12HourFormat(currentTransport.departureTime);
+    if (arrivalTime) arrivalTime.textContent = to12HourFormat(currentTransport.arrivalTime);
     if (fare) fare.textContent = `₹${currentTransport.fare}`;
     if (availableSeats) availableSeats.textContent = `${currentTransport.availableSeats} / ${currentTransport.capacity}`;
 
     const duration = currentTransport.duration || '90';
-    const hasSchedule = Array.isArray(currentTransport.schedule) && currentTransport.schedule.length > 0;
-    const stops = hasSchedule ? currentTransport.schedule.length : 2;
+    const stops = getRouteStops().length || 2;
 
     const detailsHTML = `
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px;">
@@ -245,41 +389,40 @@ function displayStops() {
     const stopsList = document.getElementById('stopsList');
     if (!stopsList) return;
 
-    if (!Array.isArray(currentTransport.schedule) || currentTransport.schedule.length === 0) {
-        stopsList.innerHTML = `
-            <div class="stop-item">
-                <div class="stop-number">1</div>
-                <div class="stop-info">
-                    <h4>${currentTransport.source}</h4>
-                    <div class="stop-time">Depart: ${currentTransport.departureTime || '-'}</div>
-                </div>
-            </div>
-            <div class="stop-item">
-                <div class="stop-number">2</div>
-                <div class="stop-info">
-                    <h4>${currentTransport.destination}</h4>
-                    <div class="stop-time">Arrive: ${currentTransport.arrivalTime || '-'}</div>
-                </div>
-            </div>
-            <p style="margin-top: 8px; color: #666;">Direct route. Intermediate stop data is not available for this service.</p>
-        `;
+    const routeStops = getRouteStops();
+    if (routeStops.length === 0) {
+        stopsList.innerHTML = '<p style="margin-top: 8px; color: #666;">No stop data available.</p>';
         return;
     }
 
-    stopsList.innerHTML = currentTransport.schedule
-        .map((stop, index) => `
+    const isGeneratedStops = !Array.isArray(currentTransport.schedule) || currentTransport.schedule.length === 0;
+
+    const stopsHtml = routeStops
+        .map((stop, index) => {
+            const arrivalTime = stop.arrivalTime ? to12HourFormat(stop.arrivalTime) : '';
+            const departureTime = stop.departureTime ? to12HourFormat(stop.departureTime) : '';
+            const showDeparture = departureTime && departureTime !== arrivalTime;
+
+            return `
             <div class="stop-item">
                 <div class="stop-number">${index + 1}</div>
                 <div class="stop-info">
                     <h4>${stop.stopName}</h4>
                     <div class="stop-time">
-                        ${stop.arrivalTime ? `📍 Arrive: ${stop.arrivalTime}` : ''}
-                        ${stop.departureTime && stop.departureTime !== stop.arrivalTime ? `<br/>🚌 Depart: ${stop.departureTime}` : ''}
+                        ${arrivalTime ? `Arrive: ${arrivalTime}` : ''}
+                        ${showDeparture ? `<br/>Depart: ${departureTime}` : ''}
                     </div>
                 </div>
             </div>
-        `)
+        `;
+        })
         .join('');
+
+    const generatedStopsInfo = isGeneratedStops
+        ? '<p style="margin-top: 8px; color: #666;">Showing 3 generated intermediate stops based on source and destination.</p>'
+        : '';
+
+    stopsList.innerHTML = `${stopsHtml}${generatedStopsInfo}`;
 }
 
 function initializeMap() {
@@ -317,13 +460,15 @@ function initializeMap() {
     mapPoints.forEach((stop) => {
         const lat = parseFloat(stop.lat);
         const lng = parseFloat(stop.lng);
+        const arrivalTime = stop.arrivalTime ? to12HourFormat(stop.arrivalTime) : '';
+        const departureTime = stop.departureTime ? to12HourFormat(stop.departureTime) : '';
         latlngs.push([lat, lng]);
 
         const marker = L.marker([lat, lng]).addTo(routeMap);
         marker.bindPopup(
             `<strong>${stop.stopName}</strong><br>` +
-            (stop.arrivalTime ? `Arr: ${stop.arrivalTime}<br>` : '') +
-            (stop.departureTime ? `Dep: ${stop.departureTime}` : '')
+            (arrivalTime ? `Arr: ${arrivalTime}<br>` : '') +
+            (departureTime && departureTime !== arrivalTime ? `Dep: ${departureTime}` : '')
         );
     });
 
@@ -373,8 +518,8 @@ function handleBooking() {
     Route: ${currentTransport.number}
     From: ${currentTransport.source}
     To: ${currentTransport.destination}
-    Departure: ${currentTransport.departureTime}
-    Arrival: ${currentTransport.arrivalTime}
+    Departure: ${to12HourFormat(currentTransport.departureTime)}
+    Arrival: ${to12HourFormat(currentTransport.arrivalTime)}
     Fare: ₹${currentTransport.fare}
     
     This is a demo application.
