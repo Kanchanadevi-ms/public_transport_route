@@ -342,6 +342,156 @@ const sampleTransports = [
       { stopName: 'Salem Station', stopOrder: 1, arrivalTime: '03:30 PM', departureTime: '03:30 PM', lat: 11.6643, lng: 78.1460 },
       { stopName: 'Chennai Central', stopOrder: 2, arrivalTime: '06:30 PM', departureTime: '06:30 PM', lat: 13.0827, lng: 80.2707 }
     ]
+  },
+  {
+    transportType: 'train',
+    name: 'Vande Bharat Express',
+    number: 'VB-2024',
+    capacity: 400,
+    availableSeats: 120,
+    fare: 1500,
+    source: 'Coimbatore',
+    destination: 'Chennai',
+    departureTime: '06:00 AM',
+    arrivalTime: '11:50 AM',
+    duration: 350,
+    schedule: [
+      { stopName: 'Coimbatore Station', stopOrder: 1, arrivalTime: '06:00 AM', departureTime: '06:00 AM', lat: 11.0081, lng: 76.9874 },
+      { stopName: 'Tiruppur', stopOrder: 2, arrivalTime: '06:40 AM', departureTime: '06:45 AM', lat: 11.1085, lng: 77.3411 },
+      { stopName: 'Erode Junction', stopOrder: 3, arrivalTime: '07:30 AM', departureTime: '07:35 AM', lat: 11.3441, lng: 77.7064 },
+      { stopName: 'Salem Junction', stopOrder: 4, arrivalTime: '08:40 AM', departureTime: '08:45 AM', lat: 11.6643, lng: 78.1460 },
+      { stopName: 'Chennai Central', stopOrder: 5, arrivalTime: '11:50 AM', departureTime: '11:50 AM', lat: 13.0827, lng: 80.2707 }
+    ]
+  },
+  {
+    transportType: 'train',
+    name: 'Kerala Express',
+    number: 'KE-12626',
+    capacity: 800,
+    availableSeats: 250,
+    fare: 850,
+    source: 'Thiruvananthapuram',
+    destination: 'Coimbatore',
+    departureTime: '11:15 AM',
+    arrivalTime: '07:30 PM',
+    duration: 495,
+    schedule: [
+      { stopName: 'Thiruvananthapuram Central', stopOrder: 1, arrivalTime: '11:15 AM', departureTime: '11:15 AM', lat: 8.4875, lng: 76.9525 },
+      { stopName: 'Kochi (Ernakulam)', stopOrder: 2, arrivalTime: '03:00 PM', departureTime: '03:10 PM', lat: 9.9312, lng: 76.2673 },
+      { stopName: 'Thrissur', stopOrder: 3, arrivalTime: '04:30 PM', departureTime: '04:35 PM', lat: 10.5276, lng: 76.2144 },
+      { stopName: 'Coimbatore Station', stopOrder: 4, arrivalTime: '07:30 PM', departureTime: '07:30 PM', lat: 11.0081, lng: 76.9874 }
+    ]
+  },
+  {
+    transportType: 'train',
+    name: 'Rockfort Express',
+    number: 'RE-12653',
+    capacity: 650,
+    availableSeats: 180,
+    fare: 450,
+    source: 'Chennai',
+    destination: 'Tiruchirappalli',
+    departureTime: '11:30 PM',
+    arrivalTime: '05:40 AM',
+    duration: 370,
+    schedule: [
+      { stopName: 'Chennai Egmore', stopOrder: 1, arrivalTime: '11:30 PM', departureTime: '11:30 PM', lat: 13.0784, lng: 80.2608 },
+      { stopName: 'Villupuram', stopOrder: 2, arrivalTime: '02:10 AM', departureTime: '02:15 AM', lat: 11.9401, lng: 79.4861 },
+      { stopName: 'Tiruchirappalli Junction', stopOrder: 3, arrivalTime: '05:40 AM', departureTime: '05:40 AM', lat: 10.7905, lng: 78.7047 }
+    ]
+  },
+  {
+    transportType: 'train',
+    name: 'Hussainsagar Express',
+    number: 'HE-12702',
+    capacity: 700,
+    availableSeats: 125,
+    fare: 650,
+    source: 'Hyderabad',
+    destination: 'Pune',
+    departureTime: '02:45 PM',
+    arrivalTime: '01:00 AM',
+    duration: 615,
+    schedule: [
+      { stopName: 'Hyderabad Deccan', stopOrder: 1, arrivalTime: '02:45 PM', departureTime: '02:45 PM', lat: 17.3930, lng: 78.4682 },
+      { stopName: 'Kalaburagi', stopOrder: 2, arrivalTime: '07:15 PM', departureTime: '07:20 PM', lat: 17.3297, lng: 76.8343 },
+      { stopName: 'Solapur', stopOrder: 3, arrivalTime: '09:00 PM', departureTime: '09:05 PM', lat: 17.6599, lng: 75.9064 },
+      { stopName: 'Pune Junction', stopOrder: 4, arrivalTime: '01:00 AM', departureTime: '01:00 AM', lat: 18.5283, lng: 73.8744 }
+    ]
+  },
+  {
+    transportType: 'train',
+    name: 'Island Express',
+    number: 'IE-16526',
+    capacity: 750,
+    availableSeats: 210,
+    fare: 900,
+    source: 'Bangalore',
+    destination: 'Thiruvananthapuram',
+    departureTime: '08:10 PM',
+    arrivalTime: '01:10 PM',
+    duration: 1020,
+    schedule: [
+      { stopName: 'Bangalore Station', stopOrder: 1, arrivalTime: '08:10 PM', departureTime: '08:10 PM', lat: 12.9716, lng: 77.5946 },
+      { stopName: 'Coimbatore Station', stopOrder: 2, arrivalTime: '04:15 AM', departureTime: '04:20 AM', lat: 11.0081, lng: 76.9874 },
+      { stopName: 'Kochi (Ernakulam)', stopOrder: 3, arrivalTime: '08:45 AM', departureTime: '08:50 AM', lat: 9.9312, lng: 76.2673 },
+      { stopName: 'Thiruvananthapuram Central', stopOrder: 4, arrivalTime: '01:10 PM', departureTime: '01:10 PM', lat: 8.4875, lng: 76.9525 }
+    ]
+  },
+  {
+    transportType: 'train',
+    name: 'Charminar Express',
+    number: 'CE-12759',
+    capacity: 850,
+    availableSeats: 300,
+    fare: 750,
+    source: 'Chennai',
+    destination: 'Hyderabad',
+    departureTime: '06:10 PM',
+    arrivalTime: '08:00 AM',
+    duration: 830,
+    schedule: [
+      { stopName: 'Chennai Central', stopOrder: 1, arrivalTime: '06:10 PM', departureTime: '06:10 PM', lat: 13.0827, lng: 80.2707 },
+      { stopName: 'Vijayawada', stopOrder: 2, arrivalTime: '01:10 AM', departureTime: '01:20 AM', lat: 16.5062, lng: 80.6480 },
+      { stopName: 'Warangal', stopOrder: 3, arrivalTime: '04:30 AM', departureTime: '04:32 AM', lat: 17.9689, lng: 79.5941 },
+      { stopName: 'Hyderabad Deccan', stopOrder: 4, arrivalTime: '08:00 AM', departureTime: '08:00 AM', lat: 17.3930, lng: 78.4682 }
+    ]
+  },
+  {
+    transportType: 'bus',
+    name: 'KSRTC Volvo',
+    number: 'KA-V-120',
+    capacity: 45,
+    availableSeats: 20,
+    fare: 1200,
+    source: 'Bangalore',
+    destination: 'Pune',
+    departureTime: '07:00 PM',
+    arrivalTime: '09:00 AM',
+    duration: 840,
+    schedule: [
+      { stopName: 'Bangalore', stopOrder: 1, arrivalTime: '07:00 PM', departureTime: '07:00 PM', lat: 12.9716, lng: 77.5946 },
+      { stopName: 'Hubballi', stopOrder: 2, arrivalTime: '01:30 AM', departureTime: '01:45 AM', lat: 15.3647, lng: 75.1240 },
+      { stopName: 'Pune', stopOrder: 3, arrivalTime: '09:00 AM', departureTime: '09:00 AM', lat: 18.5204, lng: 73.8567 }
+    ]
+  },
+  {
+    transportType: 'bus',
+    name: 'SETC Non-Stop',
+    number: 'TN-S-991',
+    capacity: 40,
+    availableSeats: 15,
+    fare: 400,
+    source: 'Tiruchirappalli',
+    destination: 'Salem',
+    departureTime: '10:00 AM',
+    arrivalTime: '01:30 PM',
+    duration: 210,
+    schedule: [
+      { stopName: 'Tiruchirappalli Central Bus Stand', stopOrder: 1, arrivalTime: '10:00 AM', departureTime: '10:00 AM', lat: 10.8050, lng: 78.6853 },
+      { stopName: 'Namakkal', stopOrder: 2, arrivalTime: '12:00 PM', departureTime: '12:05 PM', lat: 11.2189, lng: 78.1678 },
+      { stopName: 'Salem Bus Stand', stopOrder: 3, arrivalTime: '01:30 PM', departureTime: '01:30 PM', lat: 11.6643, lng: 78.1460 }
+    ]
   }
 ];
 

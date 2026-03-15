@@ -23,7 +23,24 @@ const server = http.createServer((req, res) => {
     });
 });
 
-const PORT = 8000;
-server.listen(PORT, () => {
-    console.log(`Frontend running at http://localhost:${PORT}/login.html`);
+let currentPort = Number(process.env.PORT) || 8000;
+
+function startServer(port) {
+    server.listen(port, () => {
+        console.log(`Frontend running at http://localhost:${port}/login.html`);
+    });
+}
+
+server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+        const nextPort = currentPort + 1;
+        console.warn(`Port ${currentPort} is already in use. Retrying on ${nextPort}...`);
+        currentPort = nextPort;
+        startServer(currentPort);
+        return;
+    }
+
+    throw err;
 });
+
+startServer(currentPort);
