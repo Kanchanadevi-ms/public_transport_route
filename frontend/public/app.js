@@ -17,6 +17,49 @@ const AVAILABLE_CITIES = [
     'Kochi', 'Thiruvananthapuram', 'Hyderabad', 'Mysuru'
 ];
 
+function parseTimeToMinutes(timeValue) {
+    if (timeValue === null || timeValue === undefined || timeValue === '') return null;
+
+    const input = String(timeValue).trim();
+    if (!input) return null;
+
+    const twelveHourMatch = input.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+    if (twelveHourMatch) {
+        let hours = parseInt(twelveHourMatch[1], 10);
+        const minutes = parseInt(twelveHourMatch[2], 10);
+        const meridiem = twelveHourMatch[3].toUpperCase();
+
+        if (hours < 1 || hours > 12 || minutes < 0 || minutes > 59) return null;
+        if (hours === 12) hours = 0;
+        if (meridiem === 'PM') hours += 12;
+        return (hours * 60) + minutes;
+    }
+
+    const twentyFourHourMatch = input.match(/^(\d{1,2}):(\d{2})$/);
+    if (twentyFourHourMatch) {
+        const hours = parseInt(twentyFourHourMatch[1], 10);
+        const minutes = parseInt(twentyFourHourMatch[2], 10);
+        if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) return null;
+        return (hours * 60) + minutes;
+    }
+
+    return null;
+}
+
+function to12HourFormat(timeValue) {
+    const minutes = parseTimeToMinutes(timeValue);
+    if (minutes === null) return timeValue || '-';
+
+    const normalized = ((minutes % 1440) + 1440) % 1440;
+    const hour24 = Math.floor(normalized / 60);
+    const minute = normalized % 60;
+    const meridiem = hour24 >= 12 ? 'PM' : 'AM';
+    let hour12 = hour24 % 12;
+    if (hour12 === 0) hour12 = 12;
+
+    return `${hour12}:${String(minute).padStart(2, '0')} ${meridiem}`;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     // Check authentication
     if (!isAuthenticated()) {
@@ -238,9 +281,13 @@ function sortResults(results) {
             break;
         case 'departure':
             sorted.sort((a, b) => {
-                const aDeparture = typeof a.departureTime === 'string' ? a.departureTime : '';
-                const bDeparture = typeof b.departureTime === 'string' ? b.departureTime : '';
-                return aDeparture.localeCompare(bDeparture);
+                const aDeparture = parseTimeToMinutes(a.departureTime);
+                const bDeparture = parseTimeToMinutes(b.departureTime);
+
+                if (aDeparture === null && bDeparture === null) return 0;
+                if (aDeparture === null) return 1;
+                if (bDeparture === null) return -1;
+                return aDeparture - bDeparture;
             });
             break;
     }
@@ -257,8 +304,8 @@ function createRouteCard(transport) {
     const availability = availableSeats > 0 ? 'high' : 'low';
     const availabilityText = availableSeats > 5 ? 'Plenty of seats' :
                            availableSeats > 0 ? 'Limited seats' : 'Full';
-    const departureTime = transport.departureTime || '-';
-    const arrivalTime = transport.arrivalTime || '-';
+    const departureTime = to12HourFormat(transport.departureTime);
+    const arrivalTime = to12HourFormat(transport.arrivalTime);
     const duration = Number(transport.duration) || 0;
     const fare = Number(transport.fare) || 0;
     const transportName = transport.name || 'Transport Service';
