@@ -198,6 +198,13 @@ function displayResults(results) {
     // Sort results
     const sortedResults = sortResults(results);
 
+    if (sortedResults.length === 0) {
+        errorDiv.textContent = 'No valid route data available for display.';
+        errorDiv.style.display = 'block';
+        resultsSection.style.display = 'none';
+        return;
+    }
+
     resultsContainer.innerHTML = sortedResults
         .map(route => createRouteCard(route))
         .join('');
@@ -220,17 +227,21 @@ function displayResults(results) {
 }
 
 function sortResults(results) {
-    const sorted = [...results];
+    const sorted = (Array.isArray(results) ? results : []).filter(route => route && typeof route === 'object');
 
     switch (currentSort) {
         case 'fare':
-            sorted.sort((a, b) => a.fare - b.fare);
+            sorted.sort((a, b) => (Number(a.fare) || Number.MAX_SAFE_INTEGER) - (Number(b.fare) || Number.MAX_SAFE_INTEGER));
             break;
         case 'duration':
-            sorted.sort((a, b) => a.duration - b.duration);
+            sorted.sort((a, b) => (Number(a.duration) || Number.MAX_SAFE_INTEGER) - (Number(b.duration) || Number.MAX_SAFE_INTEGER));
             break;
         case 'departure':
-            sorted.sort((a, b) => a.departureTime.localeCompare(b.departureTime));
+            sorted.sort((a, b) => {
+                const aDeparture = typeof a.departureTime === 'string' ? a.departureTime : '';
+                const bDeparture = typeof b.departureTime === 'string' ? b.departureTime : '';
+                return aDeparture.localeCompare(bDeparture);
+            });
             break;
     }
 
@@ -238,47 +249,58 @@ function sortResults(results) {
 }
 
 function createRouteCard(transport) {
-    const typeClass = transport.transportType;
-    const availability = transport.availableSeats > 0 ? 'high' : 'low';
-    const availabilityText = transport.availableSeats > 5 ? 'Plenty of seats' : 
-                           transport.availableSeats > 0 ? 'Limited seats' : 'Full';
+    if (!transport || typeof transport !== 'object') return '';
+
+    const typeClass = transport.transportType || 'bus';
+    const availableSeats = Number(transport.availableSeats) || 0;
+    const capacity = Number(transport.capacity) || 0;
+    const availability = availableSeats > 0 ? 'high' : 'low';
+    const availabilityText = availableSeats > 5 ? 'Plenty of seats' :
+                           availableSeats > 0 ? 'Limited seats' : 'Full';
+    const departureTime = transport.departureTime || '-';
+    const arrivalTime = transport.arrivalTime || '-';
+    const duration = Number(transport.duration) || 0;
+    const fare = Number(transport.fare) || 0;
+    const transportName = transport.name || 'Transport Service';
+    const transportNumber = transport.number || '-';
+    const transportId = transport._id || '';
 
     return `
-        <div class="route-card ${typeClass}" data-transport-id="${transport._id}">
+        <div class="route-card ${typeClass}" data-transport-id="${transportId}">
             <div class="route-card-header">
-                <div class="route-card-title">${transport.name} (${transport.number})</div>
-                <span class="badge ${typeClass}">${transport.transportType}</span>
+                <div class="route-card-title">${transportName} (${transportNumber})</div>
+                <span class="badge ${typeClass}">${typeClass}</span>
             </div>
 
             <div class="route-card-info">
                 <div class="info-item">
                     <span class="info-label">Departure</span>
-                    <span class="info-value">${transport.departureTime}</span>
+                    <span class="info-value">${departureTime}</span>
                 </div>
                 <div class="info-item">
                     <span class="info-label">Arrival</span>
-                    <span class="info-value">${transport.arrivalTime}</span>
+                    <span class="info-value">${arrivalTime}</span>
                 </div>
             </div>
 
             <div class="route-card-info">
                 <div class="info-item">
                     <span class="info-label">Duration</span>
-                    <span class="info-value">${transport.duration} min</span>
+                    <span class="info-value">${duration} min</span>
                 </div>
                 <div class="info-item">
                     <span class="info-label">Fare</span>
-                    <span class="info-value fare-value">₹${transport.fare}</span>
+                    <span class="info-value fare-value">₹${fare}</span>
                 </div>
             </div>
 
             <div class="availability ${availability}">
-                ${transport.availableSeats} seats available • ${availabilityText}
+                ${availableSeats} / ${capacity} seats available • ${availabilityText}
             </div>
 
             <div class="route-card-footer">
                 <button class="btn btn-primary" style="flex: 1; cursor: pointer;">View Details</button>
-                <button class="btn btn-secondary" onclick="addToFavoritesQuick(event, '${transport._id}', '${transport.number}')" style="cursor: pointer;">♡</button>
+                <button class="btn btn-secondary" onclick="addToFavoritesQuick(event, '${transportId}', '${transportNumber}')" style="cursor: pointer;">♡</button>
             </div>
         </div>
     `;
