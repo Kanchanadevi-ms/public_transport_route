@@ -26,6 +26,30 @@ router.get('/train', async (req, res) => {
   }
 });
 
+router.get('/bus', async (req, res) => {
+  try {
+    const { source, destination } = req.query;
+    const query = { transportType: 'bus' };
+
+    if (source) {
+      query.source = { $regex: source, $options: 'i' };
+    }
+
+    if (destination) {
+      query.destination = { $regex: destination, $options: 'i' };
+    }
+
+    const buses = await Transport.find(query).sort({ fare: 1 });
+    res.json({
+      success: true,
+      data: buses,
+      count: buses.length
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 router.get('/', async (req, res) => {
   try {
     const transports = await Transport.find().sort({ createdAt: -1 });
