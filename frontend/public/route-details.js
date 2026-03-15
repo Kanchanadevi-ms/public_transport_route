@@ -418,11 +418,7 @@ function displayStops() {
         })
         .join('');
 
-    const generatedStopsInfo = isGeneratedStops
-        ? '<p style="margin-top: 8px; color: #666;">Showing 3 generated intermediate stops based on source and destination.</p>'
-        : '';
-
-    stopsList.innerHTML = `${stopsHtml}${generatedStopsInfo}`;
+    stopsList.innerHTML = stopsHtml;
 }
 
 function initializeMap() {
