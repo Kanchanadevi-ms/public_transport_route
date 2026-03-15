@@ -106,7 +106,7 @@ async function handleAutocomplete(e, suggestionListId) {
 
 function displaySuggestions(suggestionList, suggestions, suggestionListId) {
     suggestionList.innerHTML = suggestions
-        .slice(0, 10) // Show max 10 suggestions
+        .slice(0, 60) // Show up to 60 suggestions
         .map(city => `<li data-city="${city}">${city}</li>`)
         .join('');
     suggestionList.classList.add('active');
