@@ -161,32 +161,20 @@ function estimateBusDuration(distanceKm) {
   return Math.max(75, Math.round((distanceKm / averageSpeedKmph) * 60 + breakBuffer));
 }
 
-function estimateTrainFare(distanceKm) {
-  // Approx mixed-class pricing for Indian intercity trains.
-  let base = 35;
-  let perKm = 1.15;
-
-  if (distanceKm > 150) perKm = 1.35;
-  if (distanceKm > 350) perKm = 1.55;
-  if (distanceKm > 700) perKm = 1.85;
-
-  const dynamicFactor = 0.92 + Math.random() * 0.18;
-  return roundToNearestTen((base + (distanceKm * perKm)) * dynamicFactor);
+// Old train price model (duration slab based)
+function fareForDuration(mins) {
+  if (mins < 120)  return Math.floor(80  + Math.random() * 70);
+  if (mins < 240)  return Math.floor(150 + Math.random() * 150);
+  if (mins < 360)  return Math.floor(300 + Math.random() * 200);
+  return Math.floor(500 + Math.random() * 400);
 }
 
-function estimateBusFare(distanceKm, serviceType) {
-  const perKmByType = {
-    'Express': 1.55,
-    'Deluxe': 1.75,
-    'AC Sleeper': 2.25,
-    'Semi Sleeper': 1.95,
-    'Non-Stop': 1.7
-  };
-
-  const perKm = perKmByType[serviceType] || 1.7;
-  const base = serviceType === 'AC Sleeper' ? 80 : 50;
-  const dynamicFactor = 0.9 + Math.random() * 0.22;
-  return roundToNearestTen((base + (distanceKm * perKm)) * dynamicFactor);
+// Old bus price model (duration slab based)
+function busFareForDuration(mins) {
+  if (mins < 120)  return Math.floor(60  + Math.random() * 80);
+  if (mins < 240)  return Math.floor(120 + Math.random() * 140);
+  if (mins < 360)  return Math.floor(220 + Math.random() * 180);
+  return Math.floor(350 + Math.random() * 320);
 }
 
 function addMinutes(time, mins) {
@@ -216,7 +204,7 @@ function buildTrainRoutes() {
       const departure    = pickRandom(departureTimes);
       const arrival      = addMinutes(departure, duration);
       const capacity     = randomTrainCapacity();
-      const fare         = estimateTrainFare(distanceKm);
+      const fare         = fareForDuration(duration);
       const trainName    = pickRandom(realTrainNames);
       const trainNumber  = `TN${String(numIdx).padStart(4, '0')}`;
 
@@ -255,7 +243,7 @@ function buildBusRoutes() {
       const arrival     = addMinutes(departure, duration);
       const capacity    = randomBusCapacity();
       const serviceType = pickRandom(busServiceTypes);
-      const fare        = estimateBusFare(distanceKm, serviceType);
+      const fare        = busFareForDuration(duration);
       const busName     = `${pickRandom(realBusNames)} ${serviceType}`;
       const busNumber   = `BUS${String(numIdx).padStart(4, '0')}`;
 
