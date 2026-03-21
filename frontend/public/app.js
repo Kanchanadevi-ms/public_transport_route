@@ -227,7 +227,7 @@ function displayResults(results) {
     const errorDiv = document.getElementById('errorMessage');
 
     if (results.length === 0) {
-        errorDiv.textContent = 'No routes found. Try different locations or dates.';
+        errorDiv.textContent = 'No routes found for this source and destination. Please choose cities from the suggestions list.';
         errorDiv.style.display = 'block';
         resultsSection.style.display = 'none';
         return;
