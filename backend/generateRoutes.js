@@ -5,6 +5,7 @@ require('dotenv').config();
 
 const modeArg = (process.argv[2] || 'both').toLowerCase();
 const generationMode = ['train', 'bus', 'both'].includes(modeArg) ? modeArg : 'both';
+const ROUTES_PER_PAIR = 3;
 
 // 55 listed cities (54 unique after dedupe) across Tamil Nadu and nearby connectivity hubs
 const rawCities = [
@@ -199,31 +200,35 @@ function buildTrainRoutes() {
     for (const dst of cities) {
       if (src === dst) continue;
 
-      const distanceKm   = estimateDistanceKm(src, dst);
-      const duration     = estimateTrainDuration(distanceKm);
-      const departure    = pickRandom(departureTimes);
-      const arrival      = addMinutes(departure, duration);
-      const capacity     = randomTrainCapacity();
-      const fare         = fareForDuration(duration);
-      const trainName    = pickRandom(realTrainNames);
-      const trainNumber  = `TN${String(numIdx).padStart(4, '0')}`;
+      for (let option = 0; option < ROUTES_PER_PAIR; option++) {
+        const distanceKm   = estimateDistanceKm(src, dst);
+        const baseDuration = estimateTrainDuration(distanceKm);
+        const durationJitter = Math.floor(Math.random() * 41) - 20;
+        const duration = Math.max(55, baseDuration + durationJitter);
+        const departure = pickRandom(departureTimes);
+        const arrival = addMinutes(departure, duration);
+        const capacity = randomTrainCapacity();
+        const fare = fareForDuration(duration);
+        const trainName = pickRandom(realTrainNames);
+        const trainNumber = `TN${String(numIdx).padStart(5, '0')}`;
 
-      routes.push({
-        transportType : 'train',
-        name          : trainName,
-        number        : trainNumber,
-        capacity      : capacity,
-        availableSeats: Math.floor(capacity * (0.1 + Math.random() * 0.9)),
-        source        : src,
-        destination   : dst,
-        departureTime : departure,
-        arrivalTime   : arrival,
-        duration      : duration,
-        fare          : fare,
-        schedule      : []
-      });
+        routes.push({
+          transportType : 'train',
+          name          : trainName,
+          number        : trainNumber,
+          capacity      : capacity,
+          availableSeats: Math.floor(capacity * (0.1 + Math.random() * 0.9)),
+          source        : src,
+          destination   : dst,
+          departureTime : departure,
+          arrivalTime   : arrival,
+          duration      : duration,
+          fare          : fare,
+          schedule      : []
+        });
 
-      numIdx++;
+        numIdx++;
+      }
     }
   }
   return routes;
@@ -237,32 +242,36 @@ function buildBusRoutes() {
     for (const dst of cities) {
       if (src === dst) continue;
 
-      const distanceKm  = estimateDistanceKm(src, dst);
-      const duration    = estimateBusDuration(distanceKm);
-      const departure   = pickRandom(departureTimes);
-      const arrival     = addMinutes(departure, duration);
-      const capacity    = randomBusCapacity();
-      const serviceType = pickRandom(busServiceTypes);
-      const fare        = busFareForDuration(duration);
-      const busName     = `${pickRandom(realBusNames)} ${serviceType}`;
-      const busNumber   = `BUS${String(numIdx).padStart(4, '0')}`;
+      for (let option = 0; option < ROUTES_PER_PAIR; option++) {
+        const distanceKm  = estimateDistanceKm(src, dst);
+        const baseDuration = estimateBusDuration(distanceKm);
+        const durationJitter = Math.floor(Math.random() * 61) - 30;
+        const duration = Math.max(70, baseDuration + durationJitter);
+        const departure = pickRandom(departureTimes);
+        const arrival = addMinutes(departure, duration);
+        const capacity = randomBusCapacity();
+        const serviceType = pickRandom(busServiceTypes);
+        const fare = busFareForDuration(duration);
+        const busName = `${pickRandom(realBusNames)} ${serviceType}`;
+        const busNumber = `BUS${String(numIdx).padStart(5, '0')}`;
 
-      routes.push({
-        transportType : 'bus',
-        name          : busName,
-        number        : busNumber,
-        capacity      : capacity,
-        availableSeats: Math.floor(capacity * (0.1 + Math.random() * 0.9)),
-        source        : src,
-        destination   : dst,
-        departureTime : departure,
-        arrivalTime   : arrival,
-        duration      : duration,
-        fare          : fare,
-        schedule      : []
-      });
+        routes.push({
+          transportType : 'bus',
+          name          : busName,
+          number        : busNumber,
+          capacity      : capacity,
+          availableSeats: Math.floor(capacity * (0.1 + Math.random() * 0.9)),
+          source        : src,
+          destination   : dst,
+          departureTime : departure,
+          arrivalTime   : arrival,
+          duration      : duration,
+          fare          : fare,
+          schedule      : []
+        });
 
-      numIdx++;
+        numIdx++;
+      }
     }
   }
 
@@ -313,7 +322,7 @@ async function main() {
 
   console.log(`\nDone! Total routes inserted: ${totalInserted}`);
   console.log(`Unique cities covered: ${cities.length}`);
-  console.log(`Route pairs per transport type: ${cities.length} x ${cities.length - 1} = ${cities.length * (cities.length - 1)}`);
+  console.log(`Route pairs per transport type: ${cities.length} x ${cities.length - 1} x ${ROUTES_PER_PAIR} = ${cities.length * (cities.length - 1) * ROUTES_PER_PAIR}`);
   await mongoose.disconnect();
 }
 
