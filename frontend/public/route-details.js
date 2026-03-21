@@ -362,7 +362,7 @@ function prefillBookingForm() {
     const passengerEmail = document.getElementById('passengerEmail');
     const passengerPhone = document.getElementById('passengerPhone');
 
-    if (passengerName && !passengerName.value && user.name) passengerName.value = user.name;
+    if (passengerName) passengerName.value = '';
     if (passengerEmail && !passengerEmail.value && user.email) passengerEmail.value = user.email;
     if (passengerPhone && !passengerPhone.value && user.phone) passengerPhone.value = String(user.phone).replace(/\D/g, '').slice(0, 10);
 }
