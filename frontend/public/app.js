@@ -256,7 +256,7 @@ function displayResults(results) {
         .join('');
 
     if (!cardsHtml.trim()) {
-        resultsContainer.innerHTML = '<div class="error-message" style="display:block;">Routes were returned, but could not be rendered. Please search again.</div>';
+        resultsContainer.innerHTML = renderFallbackResults(sortedResults);
         return;
     }
 
@@ -278,6 +278,43 @@ function displayResults(results) {
             });
         }
     });
+}
+
+function renderFallbackResults(results) {
+    const rows = (Array.isArray(results) ? results : [])
+        .map((route) => {
+            if (!route) return '';
+
+            const type = route.transportType || '-';
+            const number = route.number || '-';
+            const departure = to12HourFormat(route.departureTime);
+            const arrival = to12HourFormat(route.arrivalTime);
+            const fare = Number(route.fare) || 0;
+            const duration = Number(route.duration) || 0;
+
+            return `
+                <div class="route-card" style="border-left-width: 3px;">
+                    <div class="route-card-title">${route.name || 'Transport Service'} (${number})</div>
+                    <div class="route-card-info">
+                        <div class="info-item"><span class="info-label">Type</span><span class="info-value">${type}</span></div>
+                        <div class="info-item"><span class="info-label">Fare</span><span class="info-value fare-value">₹${fare}</span></div>
+                    </div>
+                    <div class="route-card-info">
+                        <div class="info-item"><span class="info-label">Departure</span><span class="info-value">${departure}</span></div>
+                        <div class="info-item"><span class="info-label">Arrival</span><span class="info-value">${arrival}</span></div>
+                    </div>
+                    <div class="availability">Duration: ${duration} min</div>
+                </div>
+            `;
+        })
+        .filter(Boolean)
+        .join('');
+
+    if (!rows.trim()) {
+        return '<div class="error-message" style="display:block;">No valid route rows to show.</div>';
+    }
+
+    return rows;
 }
 
 function sortResults(results) {
