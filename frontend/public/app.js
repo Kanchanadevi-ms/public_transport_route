@@ -109,7 +109,6 @@ function setTodayAsDefault() {
     const dateInput = document.getElementById('journeyDate');
     const today = new Date().toISOString().split('T')[0];
     dateInput.value = today;
-    dateInput.min = today;
 }
 
 function displayUserGreeting() {
@@ -180,7 +179,6 @@ async function performSearch() {
     const source = document.getElementById('source').value.trim();
     const destination = document.getElementById('destination').value.trim();
     const transportType = document.getElementById('transportType').value;
-    const journeyDate = document.getElementById('journeyDate').value;
     const errorDiv = document.getElementById('errorMessage');
     const loadingDiv = document.getElementById('loadingIndicator');
 
@@ -204,7 +202,7 @@ async function performSearch() {
         console.log('Searching for:', { source, destination, transportType });
 
         const response = await apiCall(
-            `${ROUTE_ENDPOINTS.SEARCH}?source=${encodeURIComponent(source)}&destination=${encodeURIComponent(destination)}&type=${transportType}&date=${journeyDate}`,
+            `${ROUTE_ENDPOINTS.SEARCH}?source=${encodeURIComponent(source)}&destination=${encodeURIComponent(destination)}&type=${transportType}`,
             { method: 'GET' }
         );
 
