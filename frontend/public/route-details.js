@@ -127,6 +127,16 @@ function to12HourFormat(timeValue) {
     return minutesTo12Hour(minutes);
 }
 
+function formatDuration(durationMinutes) {
+    const totalMinutes = Math.max(0, Math.round(Number(durationMinutes) || 0));
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+
+    if (hours === 0) return `${minutes} min`;
+    if (minutes === 0) return `${hours} hr`;
+    return `${hours} hr ${minutes} min`;
+}
+
 function findNearestCity(targetLat, targetLng, excludedCities) {
     let nearest = null;
     let minDistance = Infinity;
@@ -353,7 +363,8 @@ function displayRouteInfo() {
     if (fare) fare.textContent = `₹${currentTransport.fare}`;
     if (availableSeats) availableSeats.textContent = `${currentTransport.availableSeats} / ${currentTransport.capacity}`;
 
-    const duration = currentTransport.duration || '90';
+    const duration = Number(currentTransport.duration) || 90;
+    const durationLabel = formatDuration(duration);
     const stops = getRouteStops().length || 2;
 
     const detailsHTML = `
@@ -364,7 +375,7 @@ function displayRouteInfo() {
             </div>
             <div>
                 <label>Total Duration</label>
-                <p>${duration} minutes</p>
+                <p>${durationLabel}</p>
             </div>
             <div>
                 <label>Number of Stops</label>

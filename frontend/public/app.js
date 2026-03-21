@@ -60,6 +60,16 @@ function to12HourFormat(timeValue) {
     return `${hour12}:${String(minute).padStart(2, '0')} ${meridiem}`;
 }
 
+function formatDuration(durationMinutes) {
+    const totalMinutes = Math.max(0, Math.round(Number(durationMinutes) || 0));
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+
+    if (hours === 0) return `${minutes} min`;
+    if (minutes === 0) return `${hours} hr`;
+    return `${hours} hr ${minutes} min`;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     // Check authentication
     if (!isAuthenticated()) {
@@ -291,6 +301,7 @@ function renderFallbackResults(results) {
             const arrival = to12HourFormat(route.arrivalTime);
             const fare = Number(route.fare) || 0;
             const duration = Number(route.duration) || 0;
+            const durationLabel = formatDuration(duration);
 
             return `
                 <div class="route-card" style="border-left-width: 3px;">
@@ -303,7 +314,7 @@ function renderFallbackResults(results) {
                         <div class="info-item"><span class="info-label">Departure</span><span class="info-value">${departure}</span></div>
                         <div class="info-item"><span class="info-label">Arrival</span><span class="info-value">${arrival}</span></div>
                     </div>
-                    <div class="availability">Duration: ${duration} min</div>
+                    <div class="availability">Duration: ${durationLabel}</div>
                 </div>
             `;
         })
@@ -355,6 +366,7 @@ function createRouteCard(transport) {
     const departureTime = to12HourFormat(transport.departureTime);
     const arrivalTime = to12HourFormat(transport.arrivalTime);
     const duration = Number(transport.duration) || 0;
+    const durationLabel = formatDuration(duration);
     const fare = Number(transport.fare) || 0;
     const transportName = transport.name || 'Transport Service';
     const transportNumber = transport.number || '-';
@@ -381,7 +393,7 @@ function createRouteCard(transport) {
             <div class="route-card-info">
                 <div class="info-item">
                     <span class="info-label">Duration</span>
-                    <span class="info-value">${duration} min</span>
+                    <span class="info-value">${durationLabel}</span>
                 </div>
                 <div class="info-item">
                     <span class="info-label">Fare</span>
