@@ -655,6 +655,76 @@ body {
     opacity: 0.9;
 }
 
+.booking-modal {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 1000;
+}
+
+.booking-modal.open {
+    display: flex;
+}
+
+.booking-modal-card {
+    width: 100%;
+    max-width: 760px;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: white;
+    border-radius: 10px;
+    box-shadow: var(--shadow-lg);
+    padding: 24px;
+}
+
+.booking-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.booking-modal-close {
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: 50%;
+    background: var(--light-color);
+    color: var(--dark-color);
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.booking-form-section-title {
+    margin: 10px 0;
+    color: var(--primary-color);
+}
+
+.booking-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.booking-total {
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 6px;
+    background: var(--light-color);
+    font-weight: 700;
+}
+
+.booking-actions {
+    margin-top: 16px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
 /* ===== Favorites Section ===== */
 .page-header {
     background: linear-gradient(135deg, var(--primary-color) 0%, #0056b3 100%);
@@ -844,6 +914,10 @@ body {
 
     .page-header h1 {
         font-size: 28px;
+    }
+
+    .booking-grid {
+        grid-template-columns: 1fr;
     }
 }
 

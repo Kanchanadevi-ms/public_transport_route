@@ -105,6 +105,93 @@
         </div>
     </div>
 
+    <div id="bookingModal" class="booking-modal" aria-hidden="true">
+        <div class="booking-modal-card">
+            <div class="booking-modal-header">
+                <h3>Complete Your Booking</h3>
+                <button id="closeBookingModalBtn" class="booking-modal-close" type="button" aria-label="Close booking form">x</button>
+            </div>
+
+            <form id="bookingForm" class="booking-form" novalidate>
+                <h4 class="booking-form-section-title">Passenger Details</h4>
+                <div class="booking-grid">
+                    <div class="form-group">
+                        <label for="passengerName">Full Name</label>
+                        <input id="passengerName" name="passengerName" class="form-input" type="text" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="passengerAge">Age</label>
+                        <input id="passengerAge" name="passengerAge" class="form-input" type="number" min="1" max="100" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="passengerGender">Gender</label>
+                        <select id="passengerGender" name="passengerGender" class="form-select" required>
+                            <option value="">Select</option>
+                            <option value="female">Female</option>
+                            <option value="male">Male</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="passengerPhone">Phone Number</label>
+                        <input id="passengerPhone" name="passengerPhone" class="form-input" type="tel" pattern="[0-9]{10}" maxlength="10" required>
+                    </div>
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label for="passengerEmail">Email</label>
+                        <input id="passengerEmail" name="passengerEmail" class="form-input" type="email" required>
+                    </div>
+                </div>
+
+                <h4 class="booking-form-section-title">Payment Details</h4>
+                <div class="booking-grid">
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label for="paymentMethod">Payment Method</label>
+                        <select id="paymentMethod" name="paymentMethod" class="form-select" required>
+                            <option value="">Select payment method</option>
+                            <option value="card">Card</option>
+                            <option value="upi">UPI</option>
+                        </select>
+                    </div>
+
+                    <div id="cardFields" class="booking-grid" style="grid-column: 1 / -1; display: none;">
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label for="cardNumber">Card Number</label>
+                            <input id="cardNumber" name="cardNumber" class="form-input" type="text" maxlength="19" placeholder="1234 5678 9012 3456">
+                        </div>
+                        <div class="form-group">
+                            <label for="cardExpiry">Expiry (MM/YY)</label>
+                            <input id="cardExpiry" name="cardExpiry" class="form-input" type="text" maxlength="5" placeholder="MM/YY">
+                        </div>
+                        <div class="form-group">
+                            <label for="cardCvv">CVV</label>
+                            <input id="cardCvv" name="cardCvv" class="form-input" type="password" maxlength="3" placeholder="123">
+                        </div>
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label for="cardName">Name on Card</label>
+                            <input id="cardName" name="cardName" class="form-input" type="text">
+                        </div>
+                    </div>
+
+                    <div id="upiFields" class="booking-grid" style="grid-column: 1 / -1; display: none;">
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label for="upiId">UPI ID</label>
+                            <input id="upiId" name="upiId" class="form-input" type="text" placeholder="name@upi">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="booking-total">Total Amount: <span id="bookingTotalAmount">-</span></div>
+                <div id="bookingError" class="auth-message error" style="display: none;"></div>
+                <div id="bookingSuccess" class="auth-message success" style="display: none;"></div>
+
+                <div class="booking-actions">
+                    <button id="cancelBookingBtn" class="btn btn-secondary" type="button">Cancel</button>
+                    <button id="confirmBookingBtn" class="btn btn-primary" type="submit">Pay & Confirm</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="footer">
         <p>&copy; 2026 Public Transport Route Finder. All rights reserved.</p>

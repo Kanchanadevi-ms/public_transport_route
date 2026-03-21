@@ -1,6 +1,7 @@
 // route-details.js - Route details page with Google Maps
 let currentTransport = null;
 let routeMap = null;
+const BOOKINGS_STORAGE_KEY = 'bookings';
 
 const CITY_COORDINATES = {
     Chennai: [13.0827, 80.2707],
@@ -290,11 +291,238 @@ function setupEventListeners() {
     const favoriteBtn = document.getElementById('favoriteBtn');
     const bookBtn = document.getElementById('bookBtn');
     const logoutBtn = document.getElementById('logoutBtn');
+    const closeBookingModalBtn = document.getElementById('closeBookingModalBtn');
+    const cancelBookingBtn = document.getElementById('cancelBookingBtn');
+    const bookingForm = document.getElementById('bookingForm');
+    const paymentMethod = document.getElementById('paymentMethod');
+    const bookingModal = document.getElementById('bookingModal');
 
     if (backBtn) backBtn.addEventListener('click', () => window.history.back());
     if (favoriteBtn) favoriteBtn.addEventListener('click', addToFavorites);
-    if (bookBtn) bookBtn.addEventListener('click', handleBooking);
+    if (bookBtn) bookBtn.addEventListener('click', openBookingModal);
     if (logoutBtn) logoutBtn.addEventListener('click', logout);
+    if (closeBookingModalBtn) closeBookingModalBtn.addEventListener('click', closeBookingModal);
+    if (cancelBookingBtn) cancelBookingBtn.addEventListener('click', closeBookingModal);
+    if (bookingForm) bookingForm.addEventListener('submit', handleBookingSubmit);
+    if (paymentMethod) paymentMethod.addEventListener('change', updatePaymentFields);
+    if (bookingModal) {
+        bookingModal.addEventListener('click', (event) => {
+            if (event.target === bookingModal) {
+                closeBookingModal();
+            }
+        });
+    }
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+            closeBookingModal();
+        }
+    });
+}
+
+function openBookingModal() {
+    if (!currentTransport) return;
+
+    if (currentTransport.availableSeats <= 0) {
+        alert('No seats available for this route');
+        return;
+    }
+
+    const modal = document.getElementById('bookingModal');
+    const bookingTotalAmount = document.getElementById('bookingTotalAmount');
+    const bookingSuccess = document.getElementById('bookingSuccess');
+    const bookingError = document.getElementById('bookingError');
+
+    if (!modal) return;
+
+    if (bookingTotalAmount) {
+        bookingTotalAmount.textContent = `₹${Number(currentTransport.fare) || 0}`;
+    }
+    if (bookingSuccess) bookingSuccess.style.display = 'none';
+    if (bookingError) bookingError.style.display = 'none';
+
+    prefillBookingForm();
+    updatePaymentFields();
+
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+}
+
+function closeBookingModal() {
+    const modal = document.getElementById('bookingModal');
+    if (!modal || !modal.classList.contains('open')) return;
+
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+}
+
+function prefillBookingForm() {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const passengerName = document.getElementById('passengerName');
+    const passengerEmail = document.getElementById('passengerEmail');
+    const passengerPhone = document.getElementById('passengerPhone');
+
+    if (passengerName && !passengerName.value && user.name) passengerName.value = user.name;
+    if (passengerEmail && !passengerEmail.value && user.email) passengerEmail.value = user.email;
+    if (passengerPhone && !passengerPhone.value && user.phone) passengerPhone.value = String(user.phone).replace(/\D/g, '').slice(0, 10);
+}
+
+function updatePaymentFields() {
+    const paymentMethodEl = document.getElementById('paymentMethod');
+    const cardFields = document.getElementById('cardFields');
+    const upiFields = document.getElementById('upiFields');
+
+    const method = paymentMethodEl ? paymentMethodEl.value : '';
+
+    if (cardFields) cardFields.style.display = method === 'card' ? 'grid' : 'none';
+    if (upiFields) upiFields.style.display = method === 'upi' ? 'grid' : 'none';
+}
+
+function setBookingMessage(type, text) {
+    const bookingError = document.getElementById('bookingError');
+    const bookingSuccess = document.getElementById('bookingSuccess');
+
+    if (bookingError) bookingError.style.display = 'none';
+    if (bookingSuccess) bookingSuccess.style.display = 'none';
+
+    if (type === 'error' && bookingError) {
+        bookingError.textContent = text;
+        bookingError.style.display = 'block';
+    }
+    if (type === 'success' && bookingSuccess) {
+        bookingSuccess.textContent = text;
+        bookingSuccess.style.display = 'block';
+    }
+}
+
+function validateBookingData(data) {
+    const phoneDigits = String(data.passengerPhone || '').replace(/\D/g, '');
+    if (!data.passengerName || data.passengerName.trim().length < 2) {
+        return 'Enter a valid passenger name';
+    }
+
+    if (!Number.isFinite(data.passengerAge) || data.passengerAge < 1 || data.passengerAge > 100) {
+        return 'Enter a valid age between 1 and 100';
+    }
+
+    if (!data.passengerGender) {
+        return 'Select passenger gender';
+    }
+
+    if (!/^\d{10}$/.test(phoneDigits)) {
+        return 'Enter a valid 10-digit phone number';
+    }
+
+    if (!data.passengerEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.passengerEmail)) {
+        return 'Enter a valid email address';
+    }
+
+    if (!data.paymentMethod) {
+        return 'Select a payment method';
+    }
+
+    if (data.paymentMethod === 'card') {
+        const cardDigits = String(data.cardNumber || '').replace(/\D/g, '');
+        if (!/^\d{16}$/.test(cardDigits)) return 'Card number must be 16 digits';
+        if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(data.cardExpiry || '')) return 'Expiry must be in MM/YY format';
+        if (!/^\d{3}$/.test(data.cardCvv || '')) return 'CVV must be 3 digits';
+        if (!data.cardName || data.cardName.trim().length < 2) return 'Enter the name on card';
+    }
+
+    if (data.paymentMethod === 'upi') {
+        if (!/^[a-zA-Z0-9._-]{2,}@[a-zA-Z]{2,}$/.test(data.upiId || '')) return 'Enter a valid UPI ID';
+    }
+
+    return null;
+}
+
+function saveBookingRecord(booking) {
+    const existing = JSON.parse(localStorage.getItem(BOOKINGS_STORAGE_KEY) || '[]');
+    existing.push(booking);
+    localStorage.setItem(BOOKINGS_STORAGE_KEY, JSON.stringify(existing));
+}
+
+function maskPaymentDetails(paymentMethod, data) {
+    if (paymentMethod === 'card') {
+        const digits = String(data.cardNumber || '').replace(/\D/g, '');
+        const last4 = digits.slice(-4);
+        return `Card ending ${last4}`;
+    }
+    return `UPI ${data.upiId}`;
+}
+
+function handleBookingSubmit(event) {
+    event.preventDefault();
+    if (!currentTransport) return;
+
+    const form = document.getElementById('bookingForm');
+    if (!form) return;
+
+    const formData = new FormData(form);
+    const bookingData = {
+        passengerName: String(formData.get('passengerName') || '').trim(),
+        passengerAge: Number(formData.get('passengerAge')),
+        passengerGender: String(formData.get('passengerGender') || '').trim(),
+        passengerPhone: String(formData.get('passengerPhone') || '').trim(),
+        passengerEmail: String(formData.get('passengerEmail') || '').trim(),
+        paymentMethod: String(formData.get('paymentMethod') || '').trim(),
+        cardNumber: String(formData.get('cardNumber') || '').trim(),
+        cardExpiry: String(formData.get('cardExpiry') || '').trim(),
+        cardCvv: String(formData.get('cardCvv') || '').trim(),
+        cardName: String(formData.get('cardName') || '').trim(),
+        upiId: String(formData.get('upiId') || '').trim().toLowerCase()
+    };
+
+    const validationError = validateBookingData(bookingData);
+    if (validationError) {
+        setBookingMessage('error', validationError);
+        return;
+    }
+
+    const bookingId = `BK${Date.now().toString().slice(-8)}`;
+    const amount = Number(currentTransport.fare) || 0;
+
+    const record = {
+        bookingId,
+        bookedAt: new Date().toISOString(),
+        routeId: currentTransport._id,
+        routeNumber: currentTransport.number,
+        source: currentTransport.source,
+        destination: currentTransport.destination,
+        departureTime: to12HourFormat(currentTransport.departureTime),
+        arrivalTime: to12HourFormat(currentTransport.arrivalTime),
+        amount,
+        paymentMethod: bookingData.paymentMethod,
+        paymentReference: maskPaymentDetails(bookingData.paymentMethod, bookingData),
+        passenger: {
+            name: bookingData.passengerName,
+            age: bookingData.passengerAge,
+            gender: bookingData.passengerGender,
+            phone: bookingData.passengerPhone,
+            email: bookingData.passengerEmail
+        }
+    };
+
+    saveBookingRecord(record);
+
+    currentTransport.availableSeats = Math.max(0, Number(currentTransport.availableSeats || 0) - 1);
+    const availableSeats = document.getElementById('availableSeats');
+    if (availableSeats) {
+        availableSeats.textContent = `${currentTransport.availableSeats} / ${currentTransport.capacity}`;
+    }
+
+    const bookingMessage = document.getElementById('bookingMessage');
+    if (bookingMessage) {
+        bookingMessage.textContent = `Booking confirmed (${bookingId}). Ticket sent to ${bookingData.passengerEmail}`;
+    }
+
+    setBookingMessage('success', `Payment successful. Booking ID: ${bookingId}`);
+
+    setTimeout(() => {
+        closeBookingModal();
+        form.reset();
+        updatePaymentFields();
+    }, 1200);
 }
 
 function displayUserGreeting() {
@@ -511,26 +739,6 @@ async function addToFavorites() {
     } catch (error) {
         alert('Failed to add to favorites: ' + error.message);
     }
-}
-
-function handleBooking() {
-    if (currentTransport.availableSeats <= 0) {
-        alert('❌ No seats available for this route');
-        return;
-    }
-
-    alert(`
-    ✅ Booking Confirmed!
-    
-    Route: ${currentTransport.number}
-    From: ${currentTransport.source}
-    To: ${currentTransport.destination}
-    Departure: ${to12HourFormat(currentTransport.departureTime)}
-    Arrival: ${to12HourFormat(currentTransport.arrivalTime)}
-    Fare: ₹${currentTransport.fare}
-    
-    This is a demo application.
-    `);
 }
 
 function logout() {
