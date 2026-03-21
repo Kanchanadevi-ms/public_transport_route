@@ -54,6 +54,63 @@ const realBusNames = [
 
 const busServiceTypes = ['Express', 'Deluxe', 'AC Sleeper', 'Semi Sleeper', 'Non-Stop'];
 
+const CITY_COORDINATES = {
+  Chennai: [13.0827, 80.2707],
+  Coimbatore: [11.0168, 76.9558],
+  Madurai: [9.9252, 78.1198],
+  Tiruchirappalli: [10.7905, 78.7047],
+  Salem: [11.6643, 78.1460],
+  Erode: [11.3410, 77.7172],
+  Tirunelveli: [8.7139, 77.7567],
+  Vellore: [12.9165, 79.1325],
+  Thoothukudi: [8.7642, 78.1348],
+  Dindigul: [10.3673, 77.9803],
+  Thanjavur: [10.7867, 79.1378],
+  Kumbakonam: [10.9601, 79.3845],
+  Cuddalore: [11.7447, 79.7680],
+  Nagercoil: [8.1833, 77.4119],
+  Kanyakumari: [8.0883, 77.5385],
+  Tirupur: [11.1085, 77.3411],
+  Karur: [10.9577, 78.0766],
+  Namakkal: [11.2194, 78.1674],
+  Pudukkottai: [10.3833, 78.8000],
+  Sivaganga: [9.8470, 78.4836],
+  Virudhunagar: [9.5851, 77.9579],
+  Ramanathapuram: [9.3639, 78.8395],
+  Tenkasi: [8.9590, 77.3152],
+  Tiruvannamalai: [12.2253, 79.0747],
+  Villupuram: [11.9401, 79.4861],
+  Kallakurichi: [11.7401, 78.9596],
+  Ranipet: [12.9273, 79.3332],
+  Chengalpattu: [12.6918, 79.9766],
+  Kanchipuram: [12.8342, 79.7036],
+  Thiruvallur: [13.1439, 79.9085],
+  Ariyalur: [11.1385, 79.0756],
+  Perambalur: [11.2333, 78.8833],
+  Nagapattinam: [10.7656, 79.8428],
+  Mayiladuthurai: [11.1035, 79.6550],
+  Karaikudi: [10.0666, 78.7672],
+  Sivakasi: [9.4496, 77.7970],
+  Kovilpatti: [9.1717, 77.8689],
+  Sankarankovil: [9.1732, 77.5416],
+  Srirangam: [10.8624, 78.6932],
+  Manapparai: [10.6076, 78.4252],
+  Pollachi: [10.6582, 77.0082],
+  Palani: [10.4503, 77.5200],
+  Oddanchatram: [10.4853, 77.7480],
+  Batlagundu: [10.1635, 77.7582],
+  Paramakudi: [9.5463, 78.5907],
+  Mudukulathur: [9.3415, 78.5132],
+  Tiruvottiyur: [13.1609, 80.3009],
+  Ambattur: [13.1143, 80.1548],
+  Avadi: [13.1147, 80.1018],
+  Bangalore: [12.9716, 77.5946],
+  Kochi: [9.9312, 76.2673],
+  Thiruvananthapuram: [8.5241, 76.9366],
+  Hyderabad: [17.3850, 78.4867],
+  Mysuru: [12.2958, 76.6394]
+};
+
 // Realistic departure times
 const departureTimes = [
   '05:00','05:30','06:00','06:30','07:00','07:30','08:00','08:30',
@@ -61,29 +118,75 @@ const departureTimes = [
   '16:00','17:00','18:00','19:00','20:00','21:00','22:00','23:00'
 ];
 
-// Fare table by approximate distance bracket (minutes of travel)
-function fareForDuration(mins) {
-  if (mins < 120)  return Math.floor(80  + Math.random() * 70);   // short  < 2h
-  if (mins < 240)  return Math.floor(150 + Math.random() * 150);  // medium 2-4h
-  if (mins < 360)  return Math.floor(300 + Math.random() * 200);  // long   4-6h
-  return Math.floor(500 + Math.random() * 400);                   // very long 6h+
+function toRad(value) {
+  return value * (Math.PI / 180);
 }
 
-function busFareForDuration(mins) {
-  if (mins < 120)  return Math.floor(60  + Math.random() * 80);
-  if (mins < 240)  return Math.floor(120 + Math.random() * 140);
-  if (mins < 360)  return Math.floor(220 + Math.random() * 180);
-  return Math.floor(350 + Math.random() * 320);
+function estimateDistanceKm(source, destination) {
+  const src = CITY_COORDINATES[source];
+  const dst = CITY_COORDINATES[destination];
+
+  if (!src || !dst) {
+    return 120 + Math.floor(Math.random() * 420);
+  }
+
+  const [lat1, lon1] = src;
+  const [lat2, lon2] = dst;
+
+  const earthRadiusKm = 6371;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return Math.max(40, Math.round(earthRadiusKm * c * 1.25));
 }
 
-function randomTrainDuration() {
-  // 1h 10m  to  10h 30m  expressed in minutes
-  return 70 + Math.floor(Math.random() * 560);
+function roundToNearestTen(value) {
+  return Math.max(40, Math.round(value / 10) * 10);
 }
 
-function randomBusDuration() {
-  // buses are usually slower for the same city pairs
-  return 90 + Math.floor(Math.random() * 620);
+function estimateTrainDuration(distanceKm) {
+  const averageSpeedKmph = 58;
+  const operationalBuffer = 20 + Math.min(90, distanceKm * 0.08);
+  return Math.max(60, Math.round((distanceKm / averageSpeedKmph) * 60 + operationalBuffer));
+}
+
+function estimateBusDuration(distanceKm) {
+  const averageSpeedKmph = 44;
+  const breakBuffer = 15 + Math.min(120, distanceKm * 0.12);
+  return Math.max(75, Math.round((distanceKm / averageSpeedKmph) * 60 + breakBuffer));
+}
+
+function estimateTrainFare(distanceKm) {
+  // Approx mixed-class pricing for Indian intercity trains.
+  let base = 35;
+  let perKm = 1.15;
+
+  if (distanceKm > 150) perKm = 1.35;
+  if (distanceKm > 350) perKm = 1.55;
+  if (distanceKm > 700) perKm = 1.85;
+
+  const dynamicFactor = 0.92 + Math.random() * 0.18;
+  return roundToNearestTen((base + (distanceKm * perKm)) * dynamicFactor);
+}
+
+function estimateBusFare(distanceKm, serviceType) {
+  const perKmByType = {
+    'Express': 1.55,
+    'Deluxe': 1.75,
+    'AC Sleeper': 2.25,
+    'Semi Sleeper': 1.95,
+    'Non-Stop': 1.7
+  };
+
+  const perKm = perKmByType[serviceType] || 1.7;
+  const base = serviceType === 'AC Sleeper' ? 80 : 50;
+  const dynamicFactor = 0.9 + Math.random() * 0.22;
+  return roundToNearestTen((base + (distanceKm * perKm)) * dynamicFactor);
 }
 
 function addMinutes(time, mins) {
@@ -108,11 +211,12 @@ function buildTrainRoutes() {
     for (const dst of cities) {
       if (src === dst) continue;
 
-      const duration     = randomTrainDuration();
+      const distanceKm   = estimateDistanceKm(src, dst);
+      const duration     = estimateTrainDuration(distanceKm);
       const departure    = pickRandom(departureTimes);
       const arrival      = addMinutes(departure, duration);
       const capacity     = randomTrainCapacity();
-      const fare         = fareForDuration(duration);
+      const fare         = estimateTrainFare(distanceKm);
       const trainName    = pickRandom(realTrainNames);
       const trainNumber  = `TN${String(numIdx).padStart(4, '0')}`;
 
@@ -145,12 +249,14 @@ function buildBusRoutes() {
     for (const dst of cities) {
       if (src === dst) continue;
 
-      const duration    = randomBusDuration();
+      const distanceKm  = estimateDistanceKm(src, dst);
+      const duration    = estimateBusDuration(distanceKm);
       const departure   = pickRandom(departureTimes);
       const arrival     = addMinutes(departure, duration);
       const capacity    = randomBusCapacity();
-      const fare        = busFareForDuration(duration);
-      const busName     = `${pickRandom(realBusNames)} ${pickRandom(busServiceTypes)}`;
+      const serviceType = pickRandom(busServiceTypes);
+      const fare        = estimateBusFare(distanceKm, serviceType);
+      const busName     = `${pickRandom(realBusNames)} ${serviceType}`;
       const busNumber   = `BUS${String(numIdx).padStart(4, '0')}`;
 
       routes.push({
@@ -199,14 +305,14 @@ async function main() {
   const routeGroups = [];
 
   if (generationMode === 'train' || generationMode === 'both') {
-    const deletedTrain = await Transport.deleteMany({ number: /^TN\d{4}$/ });
-    console.log(`Removed ${deletedTrain.deletedCount} old generated train routes.`);
+    const deletedTrain = await Transport.deleteMany({ transportType: 'train' });
+    console.log(`Removed ${deletedTrain.deletedCount} old train routes.`);
     routeGroups.push({ label: 'train', routes: buildTrainRoutes() });
   }
 
   if (generationMode === 'bus' || generationMode === 'both') {
-    const deletedBus = await Transport.deleteMany({ number: /^BUS\d{4}$/ });
-    console.log(`Removed ${deletedBus.deletedCount} old generated bus routes.`);
+    const deletedBus = await Transport.deleteMany({ transportType: 'bus' });
+    console.log(`Removed ${deletedBus.deletedCount} old bus routes.`);
     routeGroups.push({ label: 'bus', routes: buildBusRoutes() });
   }
 
