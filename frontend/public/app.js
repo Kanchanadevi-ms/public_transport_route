@@ -268,14 +268,15 @@ function displayResults(results) {
             const transportId = card.dataset.transportId;
             window.location.href = `route-details.html?id=${transportId}`;
         });
-        
-        // Prevent card click when clicking buttons
-        const buttons = card.querySelectorAll('button');
-        buttons.forEach(btn => {
-            btn.addEventListener('click', (e) => {
+
+        const viewBtn = card.querySelector('.view-details-btn');
+        if (viewBtn) {
+            viewBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
+                const transportId = card.dataset.transportId;
+                window.location.href = `route-details.html?id=${transportId}`;
             });
-        });
+        }
     });
 }
 
@@ -356,8 +357,8 @@ function createRouteCard(transport) {
             </div>
 
             <div class="route-card-footer">
-                <button class="btn btn-primary" style="flex: 1; cursor: pointer;">View Details</button>
-                <button class="btn btn-secondary" onclick="addToFavoritesQuick(event, '${transportId}', '${transportNumber}')" style="cursor: pointer;">♡</button>
+                <button class="btn btn-primary view-details-btn" style="flex: 1; cursor: pointer;">View Details</button>
+                <button class="btn btn-secondary favorite-btn" onclick="addToFavoritesQuick(event, '${transportId}', '${transportNumber}')" style="cursor: pointer;">♡</button>
             </div>
         </div>
     `;
