@@ -208,7 +208,11 @@ async function performSearch() {
 
         console.log('Search response:', response);
 
-        currentResults = response.data || [];
+        const normalizedResults = Array.isArray(response.data)
+            ? response.data
+            : (response.data && Array.isArray(response.data.data) ? response.data.data : []);
+
+        currentResults = normalizedResults;
         displayResults(currentResults);
 
     } catch (error) {
@@ -246,9 +250,17 @@ function displayResults(results) {
         return;
     }
 
-    resultsContainer.innerHTML = sortedResults
+    const cardsHtml = sortedResults
         .map(route => createRouteCard(route))
+        .filter(Boolean)
         .join('');
+
+    if (!cardsHtml.trim()) {
+        resultsContainer.innerHTML = '<div class="error-message" style="display:block;">Routes were returned, but could not be rendered. Please search again.</div>';
+        return;
+    }
+
+    resultsContainer.innerHTML = cardsHtml;
 
     // Add event listeners to route cards
     document.querySelectorAll('.route-card').forEach(card => {
