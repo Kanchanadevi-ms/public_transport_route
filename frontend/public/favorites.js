@@ -71,15 +71,24 @@ function displayFavorites(favorites) {
                 </div>
             </div>
             <div class="favorite-card-actions">
-                <button class="btn btn-primary" onclick="quickSearch('${fav.source}', '${fav.destination}')">Search Again</button>
+                <button class="btn btn-primary" onclick="quickSearch('${encodeURIComponent(fav.source)}', '${encodeURIComponent(fav.destination)}', '${fav.transportId || ''}')">Search Again</button>
                 <button class="btn btn-secondary" onclick="removeFavorite('${fav._id}')">Remove</button>
             </div>
         </div>
     `).join('');
 }
 
-function quickSearch(source, destination) {
-    // Redirect to search page with source and destination filled
+function quickSearch(encodedSource, encodedDestination, transportId) {
+    const source = decodeURIComponent(encodedSource || '');
+    const destination = decodeURIComponent(encodedDestination || '');
+
+    // Open the detailed route page directly when the favorite contains a linked transport.
+    if (transportId) {
+        window.location.href = `route-details.html?id=${encodeURIComponent(transportId)}`;
+        return;
+    }
+
+    // Fallback for old favorites that were saved without transportId.
     const params = new URLSearchParams({
         source,
         destination
