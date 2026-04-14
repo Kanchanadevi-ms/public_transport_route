@@ -1,5 +1,15 @@
 // config.js - API Configuration
-const API_BASE_URL = 'http://localhost:5001/api';
+const API_BASE_URL = (() => {
+    const host = window.location.hostname;
+    const isLocal = host === 'localhost' || host === '127.0.0.1';
+
+    if (isLocal) {
+        return 'http://localhost:5001/api';
+    }
+
+    // In production, use a same-origin API path by default.
+    return '/api';
+})();
 
 // Auth endpoints
 const AUTH_ENDPOINTS = {
