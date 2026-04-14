@@ -7,8 +7,7 @@ const API_BASE_URL = (() => {
         return 'http://localhost:5001/api';
     }
 
-    // In production, use a same-origin API path by default.
-    return '/api';
+    return 'https://public-transport-route-helper-app.onrender.com/api';
 })();
 
 // Auth endpoints
@@ -59,7 +58,18 @@ async function apiCall(url, options = {}) {
             headers
         });
 
-        const data = await response.json();
+        const raw = await response.text();
+        let data = {};
+        if (raw) {
+            try {
+                data = JSON.parse(raw);
+            } catch (parseError) {
+                if (!response.ok) {
+                    throw new Error(`Request failed (${response.status}). Received non-JSON response.`);
+                }
+                throw new Error('Server returned an invalid response. Please try again.');
+            }
+        }
 
         if (!response.ok) {
             throw new Error(data.error || 'An error occurred');
