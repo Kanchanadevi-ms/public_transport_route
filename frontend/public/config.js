@@ -7,7 +7,7 @@ const API_BASE_URL = (() => {
         return 'http://localhost:5001/api';
     }
 
-    return 'https://public-transport-route-helper-app.onrender.com';
+    return 'https://public-transport-route-helper-app.onrender.com/api';
 })();
 
 // Auth endpoints
